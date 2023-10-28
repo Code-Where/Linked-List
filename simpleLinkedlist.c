@@ -1,0 +1,340 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+struct Node
+{
+    int data;
+    struct Node *next;
+};
+
+int isEmpty(struct Node *start)
+{
+    if (start == NULL)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int isFull(struct Node *ptr)
+{
+    if (ptr == NULL)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int insAtBeg(struct Node **start, struct Node **end, int value, int *count)
+{
+    struct Node *nn = (struct Node *)malloc(sizeof(struct Node));
+    if (nn != NULL)
+    {
+        nn->data = value;
+        nn->next = *start;
+        (*start) = nn;
+        (*count)++;
+        if ((*end) == NULL)
+        {
+            (*end) = nn;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int insAtEnd(struct Node **start, struct Node **end, int value, int *count)
+{
+    if (*end == NULL && *start == NULL)
+    {
+        insAtBeg(start, end, value, count);
+    }
+    else
+    {
+        struct Node *nn = (struct Node *)malloc(sizeof(struct Node));
+        if (nn != NULL)
+        {
+            nn->data = value;
+            nn->next = NULL;
+            (*end)->next = nn;
+            (*end) = nn;
+            (*count)++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int insAtPos(struct Node **start, struct Node **end, int value, int position, int *count)
+{
+    if (position == 1)
+    {
+        insAtBeg(start, end, value, count);
+    }
+    else if (position == (*count) + 1)
+    {
+        insAtEnd(start, end, value, count);
+    }
+    else if (position <= 0 || position > (*count) + 1)
+    {
+        printf("Invalid Position Number\n");
+        return 0;
+    }
+    else
+    {
+        int i;
+        struct Node *search;
+        struct Node *nn = (struct Node *)malloc(sizeof(struct Node));
+        search = *start;
+        for (i = 1; i < position - 1; i++)
+        {
+            search = search->next;
+        }
+        if (nn != NULL)
+        {
+            nn->data = value;
+            nn->next = search->next;
+            search->next = nn;
+            (*count)++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int delfromBeg(struct Node **start, struct Node **end, int *count)
+{
+    if (*start == NULL)
+    {
+        printf("List is empty. Cannot delete.\n");
+        return 0;
+    }
+
+    struct Node *temp = *start;
+    *start = (*start)->next;
+
+    if (*start == NULL)
+    {
+        *end = NULL;
+    }
+
+    free(temp);
+    (*count)--;
+    temp = NULL;
+    return 1;
+}
+
+int delfromEnd(struct Node **start, struct Node **end, int *count)
+{
+    struct Node *temp, *search;
+    if (*start == NULL)
+    {
+        printf("List is empty. Cannot delete.\n");
+        return 0;
+    }
+
+    temp = *end;
+    search = *start;
+
+    if ((*start)->next == NULL)
+    {
+        *start = NULL;
+        *end = NULL;
+    }
+    else
+    {
+        while (search->next != (*end))
+        {
+            search = search->next;
+        }
+        *end = search;
+        (*end)->next = NULL;
+    }
+
+    free(temp);
+    (*count)--;
+    temp = NULL;
+    return 1;
+}
+
+int delfromPos(struct Node **start, struct Node **end, int position, int *count)
+{
+    if (position == 1)
+    {
+        delfromBeg(start, end, count);
+    }
+    else if (position == (*count) + 1)
+    {
+        delfromEnd(start, end, count);
+    }
+    else if (position <= 0 || position > (*count) + 1)
+    {
+        printf("Invalid Position Number\n");
+        return 0;
+    }
+    else
+    {
+        int i;
+        struct Node *search, *temp;
+        search = *start;
+        for (i = 1; i < position - 1; i++)
+        {
+            search = search->next;
+        }
+        temp = search->next;
+        search->next = temp->next;
+        free(temp);
+        temp = NULL;
+        search = NULL;
+        (*count)--;
+        return 1;
+    }
+    return 0;
+}
+
+void display(struct Node *start)
+{
+    struct Node *ptr = start;
+    if (ptr == NULL)
+    {
+        printf("List is Empty\n");
+        return;
+    }
+
+    while (ptr != NULL)
+    {
+        printf("%d\n", ptr->data);
+        ptr = ptr->next;
+    }
+}
+
+int *LinearSearch(struct Node *start, int key)
+{
+    struct Node *ptr = start;
+    if (ptr == NULL)
+    {
+        printf("List is Empty\n");
+        return NULL;
+    }
+
+    while (ptr != NULL)
+    {
+        if (ptr->data == key)
+        {
+            return &(ptr->data);
+        }
+        ptr = ptr->next;
+    }
+    return NULL;
+}
+
+int main()
+{
+    struct Node *start = NULL, *end = NULL;
+    int count = 0, val, pos;
+    char ch, ch2;
+
+    do
+    {
+        printf("Press 1: Insert\nPress 2: Delete\nPress 3: Display List\nPress 4: Search\nPress 5: Exit\n\n");
+        ch = getch();
+        if (ch == '1')
+        {
+            printf("Enter Value to be Inserted\n");
+            scanf("%d", &val);
+            printf("Press 1: Insert At Begin\t\tPress 2: Insert At Position\t\tPress 3: Insert At End\n\n");
+            ch2 = getch();
+            if (ch2 == '1')
+            {
+                if (insAtBeg(&start, &end, val, &count))
+                {
+                    printf("Insertion Successfull\n");
+                }
+            }
+            else if (ch2 == '2')
+            {
+                printf("Enter Position\n");
+                scanf("%d", &pos);
+
+                if (insAtPos(&start, &end, val, pos, &count))
+                {
+                    printf("Insertion Successfull\n");
+                }
+            }
+            else if (ch2 == '3')
+            {
+                if (insAtEnd(&start, &end, val, &count))
+                {
+                    printf("Insertion Successfull\n");
+                }
+            }
+            else
+            {
+                printf("Invalid Option\n");
+            }
+        }
+        else if (ch == '2')
+        {
+            printf("Press 1: Delete At Begin\t\tPress 2: Delete At Position\t\tPress 3: Delete At End\n\n");
+            ch2 = getch();
+            if (ch2 == '1')
+            {
+                if (delfromBeg(&start, &end, &count))
+                {
+                    printf("Deletion Successfull\n");
+                }
+            }
+            else if (ch2 == '2')
+            {
+                printf("Enter Position\n");
+                scanf("%d", &pos);
+                if (delfromPos(&start, &end, pos, &count))
+                {
+                    printf("Deletion Successfull\n");
+                }
+            }
+            else if (ch2 == '3')
+            {
+                if (delfromEnd(&start, &end, &count))
+                {
+                    printf("Deletion Successfull\n");
+                }
+            }
+            else
+            {
+                printf("Invalid Option\n");
+            }
+        }
+        else if (ch == '3')
+        {
+            printf("Displaying Linked List\n");
+            display(start);
+        }
+        else if (ch == '4')
+        {
+            printf("Enter Value to be Searched\n");
+            scanf("%d", &val);
+
+            if (LinearSearch(start, val) == NULL)
+            {
+                printf("Element Not Available\n");
+            }
+            else
+            {
+                printf("%d is available in list\n", val);
+            }
+        }
+        else if (ch == '5')
+        {
+            while (start != NULL)
+            {
+                delfromBeg(&start, &end, &count);
+            }
+            printf("Exiting From Program\n");
+        }
+        else
+        {
+            printf("Invalid Option\n");
+        }
+    } while (ch != '5');
+}
